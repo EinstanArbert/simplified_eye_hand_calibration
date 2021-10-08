@@ -19,12 +19,7 @@
 
 #define PI 3.1415926
 
-using namespace std;
-using namespace cv;
-using namespace Eigen;
-
-
-int num_of_all_images =70;
+int num_of_all_images = 20;
 // 行列方向内角点数量
 cv::Size board_size = cv::Size(9, 7);
 // 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) mm
@@ -291,10 +286,64 @@ Eigen::Matrix4d handEye1(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<E
 	return gHc;
 }
 
+/**
+ * @brief    my Clamp
+ * @param    x
+ * @param    min
+ * @param    max
+ * @return   float
+ * @date 2021-09-13
+ */
+float myClamp(float x, float min, float max){
+	if (x > max)
+		return max;
+	if (x < min)
+		return min;
+	return x;
+}
+
+/**
+ * @brief    rotationMatrix To EulerAngles
+ * @param    R
+ * @param    eulerAngles
+ * @date 2021-07-09
+ */
+void getRTFromRotationMatrix(const Eigen::Matrix4d& R, cv::Mat& eulerAngles, cv::Mat& translation, std::string order)
+{
+	double roll, pitch, yaw;
+	// order == "XYZ"
+	if(order == "XYZ"){
+		pitch = asin(myClamp(R(0, 2), - 1, 1 ));
+		if (abs(R(0, 2)) < 0.99999)
+		{
+			roll = atan2(-R(1, 2) , R(2, 2));
+			yaw = atan2(-R(0, 1), R(0,0));
+		}
+		else
+		{
+			roll = atan2(R(2, 1), R(1, 1));
+			yaw = 0;
+		}
+	}
+	// order == "ZYX"
+	else{
+		pitch = asin(myClamp(-R(2, 0), - 1, 1 ));
+		if (abs(R(2, 0)) < 0.99999){
+			roll = atan2(R(2, 1), R(2, 2));
+			yaw = atan2(R(1, 0), R(0,0) );
+		} else {
+			roll = 0;
+			yaw = atan2(-R(0, 1), R(1, 1) );
+		}
+	}
+	eulerAngles = (cv::Mat_<double>(3,1) << roll, pitch, yaw);
+	translation = (cv::Mat_<double>(3,1) << R(0, 3), R(1, 3), R(2, 3));
+}
+
 
 int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 {
-	ofstream ofs(path + "/output.txt");
+	std::ofstream ofs(path + "/output.txt");
 	std::vector<cv::Mat> images;
 	// 读入图片
 	std::cout 	<< "******************读入图片......******************" << std::endl;
@@ -305,7 +354,6 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		std::string image_path;
 		image_path = path + "/" + std::to_string(i) + ".png";
 		cv::Mat image = cv::imread(image_path, 0);
-		std::cout << "image_path: " << image_path << std::endl;
 		if (!image.empty())
 			images.push_back(image);
 		else
@@ -354,7 +402,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 			// cv::find4QuadCornerSubpix(image, image_points_buff, cv::Size(5, 5));
 			// 保存亚像素角点
 			image_points_seq.push_back(image_points_buff);
-			std::cout<<"successed processing :" <<num_img_successed_processing++<<std::endl;
+
 			cv::Mat image_color;
 			cv::cvtColor(image, image_color, CV_GRAY2BGR);
 			cv::drawChessboardCorners(image_color, board_size, image_points_buff, true);
@@ -373,8 +421,8 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	ofs 		<< "******************提取角点完成!******************" << std::endl;
 
 	// 摄像机标定
-	std::cout 	<< "******************开始进行相机标定......******************" << std::endl;
-	ofs 		<< "******************开始进行相机标定......******************" << std::endl;
+	std::cout 	<< "******************开始标定相机内参!******************" << std::endl;
+	ofs 		<< "******************开始标定相机内参!******************" << std::endl;
 	// 保存标定板上的角点的三维坐标
 	std::vector<std::vector<cv::Point3f>> object_points;
 	// 内外参
@@ -413,19 +461,18 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		point_counts.push_back(board_size.width*board_size.height);
 	}
 	// 开始标定
-	std::cout << "******************开始运行calibrateCamera!******************" << std::endl;
 	cv::calibrateCamera(object_points, image_points_seq, image_size, camera_matrix, dist_coeff, r_vec, t_vec, 0);
 	std::cout << "******************标定完成!******************" << std::endl;
-	std::cout << camera_matrix << std::endl;
-	std::cout << dist_coeff << std::endl;
+	ofs << "******************标定完成!******************" << std::endl;
+
 
 	// 评价标定结果
 	std::cout << "******************开始评定标定结果......******************" << std::endl;
+	ofs << "******************开始评定标定结果......******************" << std::endl;
 	double total_err = 0.0;
 	double err = 0.0;
 	//保存重新计算得到的投影点
 	std::vector<cv::Point2f> image_points2;
-	std::cout << std::endl << "每幅图像的标定误差: " << std::endl;
 	for (int i = 0; i<num_of_images; i++)
 	{
 		std::vector<cv::Point3f> temp_point_set = object_points[i];
@@ -442,11 +489,13 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		}
 		err = cv::norm(temp_image_points_Mat, temp_image_points2_Mat, cv::NORM_L2);
 		total_err += err /= point_counts[i];
-		std::cout << "第" << i + 1 << "幅图像的平均误差: " << err << "像素" << std::endl;
+		// std::cout << "第" << i + 1 << "幅图像的平均误差: " << err << "像素" << std::endl;
 	}
 
-	std::cout << std::endl << "总体平均误差: " << total_err / num_of_images << "像素" << std::endl;
+	std::cout << "总体平均误差: " << total_err / num_of_images << "像素" << std::endl;
 	std::cout << "******************评价完成!******************" << std::endl;
+	ofs << "总体平均误差: " << total_err / num_of_images << "像素" << std::endl;
+	ofs << "******************评价完成!******************" << std::endl;
 
 	// 输出标定结果
 	std::cout << "******************标定结果如下:******************" << std::endl;
@@ -462,7 +511,8 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	ofs << dist_coeff.t() << std::endl;
 
 
-	std::cout << "******************开始运行calibrate handEye!******************" << std::endl;
+	std::cout << "\n\n******************Start Eye In Hand Calibration!******************" << std::endl;
+	ofs << "\n\n******************Start Eye In Hand Calibration!******************" << std::endl;
 	std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > bHg;
 	std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > cHw;
 
@@ -475,28 +525,21 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		return -1;
 	}
 
-	else
-	{
-		std::cout << "pose file found" << std::endl;
-	}
-
 	//读取机器人位姿及转化为eigen matrix
 	for (int i = 0; i<num_of_images; i++)
 	{
 		double temp;
 		Eigen::Vector3d trans_temp;
 
-		std::cout << "pose[" << i << "]:\n";
 		for (int j = 0; j<3; j++)
 		{
 			ifs >> temp;
-			std::cout << temp<<" ";
 			trans_temp(j) = temp;
 		}
 
 		std::vector<double> v(3, 0.0);
 		ifs >>v[0] >> v[1] >> v[2];
-		std::cout << "RPY: " << v[0] <<  " "<< v[1] <<  " "<< v[2] <<  " " << std::endl;
+
 		Eigen::Quaterniond m = Eigen::AngleAxisd(v[2] / 180 * M_PI, Eigen::Vector3d::UnitZ())\
 		* Eigen::AngleAxisd(v[1] / 180 * M_PI, Eigen::Vector3d::UnitY())\
 		* Eigen::AngleAxisd(v[0] / 180 * M_PI, Eigen::Vector3d::UnitX());
@@ -512,8 +555,6 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		pose_temp.topLeftCorner(3, 3) << rot_temp.toRotationMatrix();
 		pose_temp.topRightCorner(3, 1) << trans_temp;
 
-		std::cout << "bHg:" << std::endl;
-		std::cout << pose_temp << "\n" << std::endl;
 		bHg.push_back(pose_temp);
 	}
 	ifs.close();
@@ -543,25 +584,30 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	Eigen::AngleAxisd v;
 	for (int m = 0; m < bHg.size(); m++)
 	{
-		ofs << "num:" << m << std::endl;
-		ofs << "bHg" << std::endl;
-		ofs << bHg.at(m) << std::endl;
-		v.fromRotationMatrix((Matrix3d)bHg.at(m).topLeftCorner(3, 3));
-		ofs << "axis: " << v.axis().transpose() << std::endl << "angle: " << v.angle()/PI*180 << std::endl;
-		ofs << "cHw" << std::endl;
-		ofs << cHw.at(m) << std::endl;
-		v.fromRotationMatrix((Matrix3d)cHw.at(m).topLeftCorner(3, 3));
-		ofs << "axis: " << v.axis().transpose() << std::endl << "angle: " << v.angle() / PI * 180 << std::endl;
+		v.fromRotationMatrix((Eigen::Matrix3d)bHg.at(m).topLeftCorner(3, 3));
+		v.fromRotationMatrix((Eigen::Matrix3d)cHw.at(m).topLeftCorner(3, 3));
 	}
 	gHc = handEye(bHg, cHw);
-	std::cout << "\n\n\nCalibration Finished: \n" <<std::endl;
-	std::cout << "gHc" << std::endl;
-	ofs <<std::endl<< "gHc" << std::endl;
-	std::cout << gHc << std::endl;
+
+	ofs << "Eye In Hand Calibration Finished: " <<std::endl;
 	ofs << gHc << std::endl;
-	v.fromRotationMatrix((Matrix3d)gHc.topLeftCorner(3, 3));
-	std::cout << "axis: " << v.axis().transpose() << std::endl << "angle: " << v.angle() / PI * 180 << std::endl;
-	ofs << "axis: " << v.axis().transpose() << std::endl << "angle: " << v.angle() / PI * 180 << std::endl;
+
+	std::cout << "Eye In Hand Calibration Finished: " <<std::endl;
+	std::cout << gHc << std::endl;
+
+	v.fromRotationMatrix((Eigen::Matrix3d)gHc.topLeftCorner(3, 3));
+	cv::Mat eulerAngles, translation;
+	getRTFromRotationMatrix(gHc, eulerAngles, translation, "XYZ");
+
+	ofs << "EulerAngles is(rad): \n" << eulerAngles << std::endl;
+	std::cout << "EulerAngles is(rad): \n" << eulerAngles << std::endl;
+
+	ofs << "Translation is: \n" << translation << std::endl;
+	std::cout << "Translation is: \n" << translation << std::endl;
+
+	// ofs << "Rotation vector's rotation axis is: " << v.axis().transpose() << std::endl << "Rotation vector's rotation angle is(deg): " << v.angle() / PI * 180 << std::endl;
+	// std::cout << "Rotation vector's rotation axis is: " << v.axis().transpose() << std::endl << "Rotation vector's rotation angle is(deg): " << v.angle() / PI * 180 << std::endl;
+
 	return 0;
 }
 
