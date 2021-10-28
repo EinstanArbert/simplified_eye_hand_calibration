@@ -5,10 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch pure_vo_online",
+            "name": "(gdb) Launch getColorImage",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/eye_in_hand_calibration",
+            // "program": "${workspaceFolder}/build/eye_in_hand_calibration",
+            "program": "${workspaceFolder}/build/getColorImage",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -24,10 +25,10 @@
             ]
         },
         {
-            "name": "(gdb) Launch pure_vo_offline",
+            "name": "(gdb) Launch eye_in_hand_calibration",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/pureVOMonoOffline",
+            "program": "${workspaceFolder}/build/bin/eye_in_hand_calibration",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
