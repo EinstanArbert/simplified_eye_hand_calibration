@@ -21,9 +21,9 @@
 
 int num_of_all_images = 20;
 // 行列方向内角点数量
-cv::Size board_size = cv::Size(9, 7);
+cv::Size board_size = cv::Size(8, 6);
 // 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) mm
-cv::Size2f square_size = cv::Size2f(25, 25);
+cv::Size2f square_size = cv::Size2f(23.5, 23.5);
 
 
 Eigen::Matrix3d skew(Eigen::Vector3d V);
@@ -531,18 +531,18 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		double temp;
 		Eigen::Vector3d trans_temp;
 
-		for (int j = 0; j<3; j++)
+		for (int j = 0; j < 2; j++)
 		{
 			ifs >> temp;
-			trans_temp(j) = temp;
+			trans_temp(j) = temp * 1000.;
 		}
 
 		std::vector<double> v(3, 0.0);
-		ifs >>v[0] >> v[1] >> v[2];
+		ifs >> v[2];
 
-		Eigen::Quaterniond m = Eigen::AngleAxisd(v[2] / 180 * M_PI, Eigen::Vector3d::UnitZ())\
-		* Eigen::AngleAxisd(v[1] / 180 * M_PI, Eigen::Vector3d::UnitY())\
-		* Eigen::AngleAxisd(v[0] / 180 * M_PI, Eigen::Vector3d::UnitX());
+		Eigen::Quaterniond m = Eigen::AngleAxisd(v[2], Eigen::Vector3d::UnitZ())\
+		* Eigen::AngleAxisd(v[1], Eigen::Vector3d::UnitY())\
+		* Eigen::AngleAxisd(v[0], Eigen::Vector3d::UnitX());
 
 
 		double w, x, y, z;

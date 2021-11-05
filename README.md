@@ -8,7 +8,7 @@
 ## Input
 
 - image with chessboard
-- robot pose in txt file (xyz(mm),rpy(deg))
+- robot pose in txt file (x(m) y(m) yaw(rad))
 
 ## Output
 
