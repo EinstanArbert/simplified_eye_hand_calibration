@@ -16,7 +16,7 @@ namespace pure_vo{
  * @param    filename
  * @date 2021-08-06
  */
-CaptureRSCameraStream::CaptureRSCameraStream():dir(to_depth){
+CaptureRSCameraStream::CaptureRSCameraStream():dir(to_depth), out("./data/pose.txt"){
 	width_ = 640;
 	height_ = 480;
 	fps = 60;
@@ -36,6 +36,36 @@ CaptureRSCameraStream::CaptureRSCameraStream():dir(to_depth){
     // sensor.set_option(RS2_OPTION_EXPOSURE, EXPOSURE_VALUE);  //set EXPOSURE_VALUE
     // sensor.set_option(RS2_OPTION_ENABLE_AUTO_EXPOSURE, 1);  //set AUTO_EXPOSURE
     // sensor.set_option(RS2_OPTION_GAIN, GAIN_VALUE);  //set GAIN
+}
+
+
+
+void CaptureRSCameraStream::getBasePose_callback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& location_pose_ptr){
+	Pose basePose;
+	geometry_msgs::PoseWithCovarianceStamped location_pose = *location_pose_ptr;
+	if(!isnan(location_pose.pose.pose.position.x) && !isnan(location_pose.pose.pose.position.y))
+	{
+		basePose.x = location_pose.pose.pose.position.x;
+		basePose.y = location_pose.pose.pose.position.y;
+		basePose.z = location_pose.pose.pose.position.z;
+		basePose.qx = location_pose.pose.pose.orientation.x;
+		basePose.qy = location_pose.pose.pose.orientation.y;
+		basePose.qz = location_pose.pose.pose.orientation.z;
+		basePose.qw = location_pose.pose.pose.orientation.w;
+	}
+	else
+	{
+		basePose.x = 0.;
+		basePose.y = 0.;
+		basePose.z = 0.;
+		basePose.qx = 0.;
+		basePose.qy = 0.;
+		basePose.qz = 0.;
+		basePose.qw = 0.;
+	}
+	out << basePose.x << "   " << basePose.y << "   " << basePose.z << "   " <<
+		basePose.qx << "   " << basePose.qy << "   " << basePose.qz << "   " <<
+		basePose.qw << std::endl;
 }
 
 

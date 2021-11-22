@@ -531,22 +531,19 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		double temp;
 		Eigen::Vector3d trans_temp;
 
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < 3; j++)
 		{
 			ifs >> temp;
 			trans_temp(j) = temp * 1000.;
 		}
 
-		std::vector<double> v(3, 0.0);
-		ifs >> v[2];
-
-		Eigen::Quaterniond m = Eigen::AngleAxisd(v[2], Eigen::Vector3d::UnitZ())\
-		* Eigen::AngleAxisd(v[1], Eigen::Vector3d::UnitY())\
-		* Eigen::AngleAxisd(v[0], Eigen::Vector3d::UnitX());
-
+		// std::vector<double> v(3, 0.0);
+		// ifs >> v[0] >> v[1] >> v[2];
 
 		double w, x, y, z;
-		x = m.x(); y= m.y(); z= m.z();  w= m.w();
+		ifs >> x >> y >> z >> w;
+
+		// x = m.x(); y= m.y(); z= m.z();  w= m.w();
 		Eigen::Quaterniond rot_temp(w, x, y, z);
 
 		Eigen::Matrix4d pose_temp;

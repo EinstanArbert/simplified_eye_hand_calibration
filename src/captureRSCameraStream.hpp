@@ -12,6 +12,9 @@
 #define captureRSCameraStream_hpp
 #include <librealsense2/rs.hpp>
 #include <opencv2/opencv.hpp>
+#include "ros/ros.h"
+#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <fstream>
 
 #include <iostream>
 
@@ -19,6 +22,9 @@ using namespace cv;
 using namespace std;
 
 namespace pure_vo{
+    struct Pose{
+        float x, y, z, qx, qy, qz, qw;
+    };
     enum direction
     {
         to_depth,
@@ -48,8 +54,12 @@ namespace pure_vo{
              */
             void captureVideoStream(VideoStreamFlag flag);
 
+            void getBasePose_callback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& location_pose_ptr);
+
             cv::Mat depthImg, colorImg;
             IMUData imuData;
+            std::ofstream out;
+
         private:
             rs2::pipeline pipe;
             rs2::config cfg;
