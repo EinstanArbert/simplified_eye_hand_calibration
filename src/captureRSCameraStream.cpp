@@ -40,18 +40,18 @@ CaptureRSCameraStream::CaptureRSCameraStream():dir(to_depth), out("./data/pose.t
 
 
 
-void CaptureRSCameraStream::getBasePose_callback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& location_pose_ptr){
+void CaptureRSCameraStream::getBasePose_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr){
 	Pose basePose;
-	geometry_msgs::PoseWithCovarianceStamped location_pose = *location_pose_ptr;
-	if(!isnan(location_pose.pose.pose.position.x) && !isnan(location_pose.pose.pose.position.y))
+	geometry_msgs::PoseStamped location_pose = *location_pose_ptr;
+	if(!isnan(location_pose.pose.position.x) && !isnan(location_pose.pose.position.y))
 	{
-		basePose.x = location_pose.pose.pose.position.x;
-		basePose.y = location_pose.pose.pose.position.y;
-		basePose.z = location_pose.pose.pose.position.z;
-		basePose.qx = location_pose.pose.pose.orientation.x;
-		basePose.qy = location_pose.pose.pose.orientation.y;
-		basePose.qz = location_pose.pose.pose.orientation.z;
-		basePose.qw = location_pose.pose.pose.orientation.w;
+		basePose.x = location_pose.pose.position.x;
+		basePose.y = location_pose.pose.position.y;
+		basePose.z = location_pose.pose.position.z;
+		basePose.qx = location_pose.pose.orientation.x;
+		basePose.qy = location_pose.pose.orientation.y;
+		basePose.qz = location_pose.pose.orientation.z;
+		basePose.qw = location_pose.pose.orientation.w;
 	}
 	else
 	{

@@ -7,16 +7,13 @@ add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE "Debug")
 find_package(catkin REQUIRED COMPONENTS
     roscpp
-    sensor_msgs
     geometry_msgs
-    pcl_conversions
-    laser_geometry
 )
 
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lidar_calib
-CATKIN_DEPENDS roscpp sensor_msgs geometry_msgs pcl_conversions laser_geometry
+CATKIN_DEPENDS roscpp geometry_msgs
 #  DEPENDS system_lib
 )
 

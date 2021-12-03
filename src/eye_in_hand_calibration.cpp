@@ -599,6 +599,9 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	ofs << "EulerAngles is(rad): \n" << eulerAngles << std::endl;
 	std::cout << "EulerAngles is(rad): \n" << eulerAngles << std::endl;
 
+	std::cout << "EulerAngles is(deg): \n" << eulerAngles * 180.0 / PI << std::endl;
+	ofs << "EulerAngles is(deg): \n" << eulerAngles * 180.0 / PI << std::endl;
+
 	ofs << "Translation is: \n" << translation << std::endl;
 	std::cout << "Translation is: \n" << translation << std::endl;
 

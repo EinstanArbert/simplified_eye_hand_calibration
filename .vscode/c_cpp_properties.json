@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/zengbin/code/myGithub/release_ws/devel/include/**",
+        "/home/zengbin/code/work/jaten_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/zengbin/code/myGithub/ws/src/ros_astra_camera/include/**",
+        "/home/zengbin/code/work/jaten_ws/src/ddynamic_reconfigure/include/**",
+        "/home/zengbin/code/myGithub/ws/src/od_ros/include/**",
+        "/home/zengbin/code/myGithub/ws/src/od_lidar/include/**",
+        "/home/zengbin/code/myGithub/release_ws/src/od_ros_lidar_sdk/include/**",
+        "/home/zengbin/code/myGithub/release_ws/src/od_ros_sdk/include/**",
+        "/home/zengbin/code/myGithub/ws/src/pallet_pocket_detection/include/**",
+        "/home/zengbin/code/myGithub/release_ws/src/realsense-ros/realsense2_camera/include/**",
+        "/home/zengbin/code/work/jaten_ws/src/usb_cam/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

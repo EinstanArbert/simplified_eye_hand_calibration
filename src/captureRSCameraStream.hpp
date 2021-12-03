@@ -13,7 +13,7 @@
 #include <librealsense2/rs.hpp>
 #include <opencv2/opencv.hpp>
 #include "ros/ros.h"
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <fstream>
 
 #include <iostream>
@@ -54,7 +54,7 @@ namespace pure_vo{
              */
             void captureVideoStream(VideoStreamFlag flag);
 
-            void getBasePose_callback(const geometry_msgs::PoseWithCovarianceStampedConstPtr& location_pose_ptr);
+            void getBasePose_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr);
 
             cv::Mat depthImg, colorImg;
             IMUData imuData;
