@@ -27,7 +27,8 @@ int main(int argc, char **argv){
     int imgID = 0;
     int key;
 
-    ros::Subscriber location_pose_sub = n.subscribe("scan", 1, &CaptureRSCameraStream::getBasePose_callback, &captureImage);
+    // ros::Subscriber location_pose_sub = n.subscribe("scan", 1, &CaptureRSCameraStream::getBasePose_callback, &captureImage);
+    ros::Subscriber location_pose_sub = n.subscribe("/odom", 1, &CaptureRSCameraStream::getBasePoseInOdom_callback, &captureImage);
     // ros::Rate loop_rate(20);
     while(ros::ok()){
         captureImage.captureVideoStream(VideoStreamFlag::colorStream);

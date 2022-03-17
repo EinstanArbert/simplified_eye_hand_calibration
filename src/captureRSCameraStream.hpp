@@ -14,6 +14,7 @@
 #include <opencv2/opencv.hpp>
 #include "ros/ros.h"
 #include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/Odometry.h>
 #include <fstream>
 
 #include <iostream>
@@ -54,7 +55,11 @@ namespace pure_vo{
              */
             void captureVideoStream(VideoStreamFlag flag);
 
+            // 获取agv在map下的位姿
             void getBasePose_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr);
+
+            // 获取agv在odom坐标系下的位姿
+            void getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& location_pose_ptr);
 
             cv::Mat depthImg, colorImg;
             IMUData imuData;

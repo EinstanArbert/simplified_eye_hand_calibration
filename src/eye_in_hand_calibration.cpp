@@ -19,11 +19,11 @@
 
 #define PI 3.1415926
 
-int num_of_all_images = 20;
+int num_of_all_images = 41;
 // 行列方向内角点数量
 cv::Size board_size = cv::Size(8, 6);
 // 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) mm
-cv::Size2f square_size = cv::Size2f(23.5, 23.5);
+cv::Size2f square_size = cv::Size2f(24.4, 24.4);
 
 
 Eigen::Matrix3d skew(Eigen::Vector3d V);

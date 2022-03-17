@@ -38,7 +38,34 @@ CaptureRSCameraStream::CaptureRSCameraStream():dir(to_depth), out("./data/pose.t
     // sensor.set_option(RS2_OPTION_GAIN, GAIN_VALUE);  //set GAIN
 }
 
+void CaptureRSCameraStream::getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& location_pose_ptr){
+	Pose basePose;
+	nav_msgs::Odometry location_pose = *location_pose_ptr;
+	if(!isnan(location_pose.pose.pose.position.x) && !isnan(location_pose.pose.pose.position.y))
+	{
+		basePose.x = location_pose.pose.pose.position.x;
+		basePose.y = location_pose.pose.pose.position.y;
+		basePose.z = location_pose.pose.pose.position.z;
+		basePose.qx = location_pose.pose.pose.orientation.x;
+		basePose.qy = location_pose.pose.pose.orientation.y;
+		basePose.qz = location_pose.pose.pose.orientation.z;
+		basePose.qw = location_pose.pose.pose.orientation.w;
+	}
+	else
+	{
+		basePose.x = 0.;
+		basePose.y = 0.;
+		basePose.z = 0.;
+		basePose.qx = 0.;
+		basePose.qy = 0.;
+		basePose.qz = 0.;
+		basePose.qw = 0.;
+	}
 
+	out << basePose.x << "   " << basePose.y << "   " << basePose.z << "   " <<
+	basePose.qx << "   " << basePose.qy << "   " << basePose.qz << "   " <<
+	basePose.qw << std::endl;
+}
 
 void CaptureRSCameraStream::getBasePose_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr){
 	Pose basePose;

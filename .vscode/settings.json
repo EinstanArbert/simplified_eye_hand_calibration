@@ -76,7 +76,8 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "unordered_set": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/home/zengbin/code/myGithub/release_ws/devel/lib/python2.7/dist-packages",
