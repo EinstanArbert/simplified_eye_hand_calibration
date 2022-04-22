@@ -14,18 +14,21 @@
 #include <eigen3/Eigen/LU>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/StdVector>
+#include <eigen3/Eigen/Eigen>
 
 #include <opencv2/core/eigen.hpp>
+
+#include "solver.h"
 
 #define PI 3.1415926
 
 int num_of_all_images = 41;
 // 行列方向内角点数量
 cv::Size board_size = cv::Size(8, 6);
-// 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) mm
-cv::Size2f square_size = cv::Size2f(24.4, 24.4);
+// 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) m
+cv::Size2f square_size = cv::Size2f(0.0244, 0.0244);
 
-
+cSolver cSolve;
 Eigen::Matrix3d skew(Eigen::Vector3d V);
 Eigen::Matrix4d quat2rot(Eigen::Vector3d q);
 Eigen::Vector3d rot2quat(Eigen::MatrixXd R);
@@ -35,8 +38,22 @@ Eigen::Matrix4d handEye(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Ei
 Eigen::Matrix4d handEye1(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > bHg,
 	std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > cHw);
 int handEye_calib(Eigen::Matrix4d &gHc, std::string path );
+Eigen::Affine3d getAsAffine(double x, double y, double yaw );
 
 
+/**
+ * Convert x,y,yaw to Eigen::Affine3d
+ */
+Eigen::Affine3d getAsAffine(double x, double y, double yaw ){
+	Eigen::Matrix3d m;
+	m = Eigen::AngleAxisd(0, Eigen::Vector3d::UnitX())
+			* Eigen::AngleAxisd(0, Eigen::Vector3d::UnitY())
+			* Eigen::AngleAxisd(yaw, Eigen::Vector3d::UnitZ());
+	Eigen::Translation3d v(x,y,0);
+	Eigen::Affine3d T = v*m;
+
+	return T;
+}
 
 
 // skew - returns skew matrix of a 3x1 vector.
@@ -317,7 +334,7 @@ void getRTFromRotationMatrix(const Eigen::Matrix4d& R, cv::Mat& eulerAngles, cv:
 		if (abs(R(0, 2)) < 0.99999)
 		{
 			roll = atan2(-R(1, 2) , R(2, 2));
-			yaw = atan2(-R(0, 1), R(0,0));
+			yaw = atan2(-R(0, 1), R(0, 0));
 		}
 		else
 		{
@@ -330,7 +347,7 @@ void getRTFromRotationMatrix(const Eigen::Matrix4d& R, cv::Mat& eulerAngles, cv:
 		pitch = asin(myClamp(-R(2, 0), - 1, 1 ));
 		if (abs(R(2, 0)) < 0.99999){
 			roll = atan2(R(2, 1), R(2, 2));
-			yaw = atan2(R(1, 0), R(0,0) );
+			yaw = atan2(R(1, 0), R(0, 0) );
 		} else {
 			roll = 0;
 			yaw = atan2(-R(0, 1), R(1, 1) );
@@ -525,8 +542,10 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		return -1;
 	}
 
+	std::vector<sync_data> sync_results;
+	Eigen::Affine3d Told;
 	//读取机器人位姿及转化为eigen matrix
-	for (int i = 0; i<num_of_images; i++)
+	for (int i = 0; i < num_of_images; i++)
 	{
 		double temp;
 		Eigen::Vector3d trans_temp;
@@ -534,7 +553,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		for (int j = 0; j < 3; j++)
 		{
 			ifs >> temp;
-			trans_temp(j) = temp * 1000.;
+			trans_temp(j) = temp;
 		}
 
 		// std::vector<double> v(3, 0.0);
@@ -545,7 +564,6 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 
 		// x = m.x(); y= m.y(); z= m.z();  w= m.w();
 		Eigen::Quaterniond rot_temp(w, x, y, z);
-
 		Eigen::Matrix4d pose_temp;
 		pose_temp << Eigen::MatrixXd::Identity(4, 4);
 		//四元数转旋转矩阵
@@ -553,12 +571,29 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		pose_temp.topRightCorner(3, 1) << trans_temp;
 
 		bHg.push_back(pose_temp);
+
+		cv::Mat eulerAngles, translation;
+		getRTFromRotationMatrix(pose_temp, eulerAngles, translation, "XYZ");
+		Eigen::Affine3d T = getAsAffine(translation.at<double>(0, 0), translation.at<double>(1, 0), eulerAngles.at<double>(2, 0));
+		if(i == 0){
+			Told = T;
+		}
+    	Eigen::Affine3d deltaPose = Told.inverse() * T;
+		Eigen::Vector3d tr = deltaPose.translation();
+		Eigen::Vector3d rot = deltaPose.rotation().eulerAngles(0,1,2);
+		Told = T;
+
+		sync_data myOdomData;
+		myOdomData.odom_result[0] = tr[0];
+		myOdomData.odom_result[1] = tr[1];
+		myOdomData.odom_result[2] = rot[2];
+		sync_results.push_back(myOdomData);
 	}
 	ifs.close();
 
 
 	//r_vec和t_vec转化为Eigen matrix
-	for (int i = 0; i<num_of_images; i++)
+	for (int i = 0; i < num_of_images; i++)
 	{
 		Eigen::Matrix4d pose_temp;
 		cv::Mat rot_temp;
@@ -575,7 +610,30 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		pose_temp(3, 2) = 0;
 		pose_temp(3, 3) = 1;
 		cHw.push_back(pose_temp);
+
+		cv::Mat eulerAngles, translation;
+		getRTFromRotationMatrix(pose_temp, eulerAngles, translation, "XYZ");
+		Eigen::Affine3d T = getAsAffine(translation.at<double>(0, 0), translation.at<double>(1, 0), eulerAngles.at<double>(2, 0));
+		if(i == 0){
+			Told = T;
+		}
+    	Eigen::Affine3d deltaPose = Told.inverse() * T;
+		Eigen::Vector3d tr = deltaPose.translation();
+		Eigen::Vector3d rot = deltaPose.rotation().eulerAngles(0,1,2);
+		Told = T;
+
+		sync_results[i].scan_match_results[0] = tr[0];
+		sync_results[i].scan_match_results[1] = tr[1];
+		sync_results[i].scan_match_results[2] = rot[2];
 	}
+
+
+
+	sync_results.erase(sync_results.begin());
+	cSolver::calib_result res;
+	cSolve.calib(sync_results, 4, res);
+    ofs << "-------CSM Calibration Results-------" << '\n' << "Camera-odom x: " << res.l[0] << '\n'
+            << "Camera-odom y: " << res.l[1] << '\n' << "Camera-odom yaw: " << res.l[2] << std::endl;
 
 
 	Eigen::AngleAxisd v;
@@ -584,12 +642,14 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		v.fromRotationMatrix((Eigen::Matrix3d)bHg.at(m).topLeftCorner(3, 3));
 		v.fromRotationMatrix((Eigen::Matrix3d)cHw.at(m).topLeftCorner(3, 3));
 	}
+
+
 	gHc = handEye(bHg, cHw);
 
-	ofs << "Eye In Hand Calibration Finished: " <<std::endl;
+	ofs << '\n' << "Eye In Hand Calibration Finished: " <<std::endl;
 	ofs << gHc << std::endl;
 
-	std::cout << "Eye In Hand Calibration Finished: " <<std::endl;
+	std::cout << '\n' << "Eye In Hand Calibration Finished: " <<std::endl;
 	std::cout << gHc << std::endl;
 
 	v.fromRotationMatrix((Eigen::Matrix3d)gHc.topLeftCorner(3, 3));

@@ -28,7 +28,7 @@
             "name": "(gdb) Launch eye_in_hand_calibration",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/eye_in_hand_calibration",
+            "program": "${workspaceRoot}/../../devel/lib/simplified_eye_hand_calibration/eye_in_hand_calibration",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -18,14 +18,18 @@ CATKIN_DEPENDS roscpp geometry_msgs
 #  DEPENDS system_lib
 )
 
+include_directories("/usr/include/eigen3")
+
 find_package(OpenCV REQUIRED)
 FIND_PACKAGE(realsense2 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS}
+include
+${EIGEN3_INCLUDE_DIR}
 ${catkin_INCLUDE_DIRS}
 ${realsense2_INCLUDE_DIRS})
 
-include_directories("/usr/include/eigen3")
 
 add_executable(getColorImage
 src/captureRSCameraStream.cpp
@@ -41,7 +45,7 @@ target_link_libraries(getColorImage PRIVATE
     ${catkin_LIBRARIES}
 )
 
-add_executable(eye_in_hand_calibration src/eye_in_hand_calibration.cpp)
+add_executable(eye_in_hand_calibration src/eye_in_hand_calibration.cpp src/solver.cpp)
 target_link_libraries(eye_in_hand_calibration ${OpenCV_LIBRARIES})
 
 add_executable(eye_to_hand_calibration src/eye_to_hand_calibration.cpp)
