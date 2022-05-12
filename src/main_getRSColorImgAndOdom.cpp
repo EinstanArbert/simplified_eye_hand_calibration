@@ -18,7 +18,7 @@ using namespace pure_vo;
 
 
 int main(int argc, char **argv){
-    ros::init(argc, argv, "calibLidarToBase");
+    ros::init(argc, argv, "calibCameraToOdom");
     ros::NodeHandle n;
 
     CaptureRSCameraStream captureImage;

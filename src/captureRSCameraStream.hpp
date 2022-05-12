@@ -76,4 +76,4 @@ namespace pure_vo{
     };
 
 }
-#endif // !PURE_VO_H_
+#endif
