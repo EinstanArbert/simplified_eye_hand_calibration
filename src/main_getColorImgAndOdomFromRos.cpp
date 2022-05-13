@@ -22,7 +22,9 @@ int main(int argc, char **argv){
     // std::ofstream out(calibDataDir + "pose.txt");
 
     ros::init(argc, argv, "calibCameraToOdom");
-    ros::NodeHandle n;
+    ros::NodeHandle n("~");
+    bool manualMode;
+    n.param("manualMode", manualMode, false);
 	CaptureData captureData;
 	cv::Mat colorImg;
 
@@ -31,27 +33,42 @@ int main(int argc, char **argv){
 
     ros::Subscriber color_sub = n.subscribe("/camera/rgb/image_raw", 1, &CaptureData::getImageColor_callback, &captureData);
     ros::Subscriber odom_sub = n.subscribe("/odom", 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
-    // ros::Rate loop_rate(30);
+    ros::Rate loop_rate(1);
+    ros::Rate loop_rate2(0.5);
     while(ros::ok()){
-        ros::spinOnce();
-
         colorImg = captureData.colorImg;
         if(colorImg.empty()){
             std::cout << "Waiting image ..." << std::endl;
+            ros::spinOnce();
+            loop_rate2.sleep();
             continue;
         }
-        cv::imshow("colorImage", colorImg);
 
-        key = cvWaitKey(2);
-        if(key != -1){
-            if((char)key == 's'){
-                std::stringstream ss1;
-                ss1 << calibDataDir << imgID << ".png";
-                cv::imwrite(ss1.str().c_str(), colorImg);
-                // ros::spinOnce();
-                imgID += 1;
-                // loop_rate.sleep();
+        //手动点击左键在打开的图片窗口，然后按s键保存图片与odom位置到指定文件
+        if(manualMode){
+            cv::imshow("colorImage", colorImg);
+            key = cvWaitKey(2);
+            if(key != -1){
+                if((char)key == 's'){
+                    captureData.saveOdomPose();
+                    std::stringstream ss1;
+                    ss1 << calibDataDir << imgID << ".png";
+                    cv::imwrite(ss1.str().c_str(), colorImg);
+                    imgID += 1;
+                    ros::spinOnce();
+                    loop_rate.sleep();
+                }
             }
+        }
+        else{
+            //自动按loop_rate的频率保存图片与odom的值到指定文件
+            captureData.saveOdomPose();
+            std::stringstream ss1;
+            ss1 << calibDataDir << imgID << ".png";
+            cv::imwrite(ss1.str().c_str(), colorImg);
+            imgID += 1;
+            ros::spinOnce();
+            loop_rate.sleep();
         }
     }
 

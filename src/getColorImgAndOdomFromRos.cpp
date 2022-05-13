@@ -23,13 +23,18 @@ void CaptureData::getImageColor_callback(const sensor_msgs::ImageConstPtr& msgRG
 	// cv::cvtColor(colorImg, colorImg, CV_BGR2GRAY);
 }
 
+void CaptureData::saveOdomPose(){
+    out << basePose.x << "   " << basePose.y << "   " << basePose.z << "   "
+    << basePose.qx << "   " << basePose.qy << "   " << basePose.qz << "   "
+    << basePose.qw
+    << std::endl;
+}
+
+
 void CaptureData::getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& location_pose_ptr){
-    Pose basePose;
+    // Pose basePose;
 
 	nav_msgs::Odometry location_pose = *location_pose_ptr;
-
-    std::cout << "odom x: " << location_pose.pose.pose.position.x << std::endl;
-
 	if(!isnan(location_pose.pose.pose.position.x) && !isnan(location_pose.pose.pose.position.y))
 	{
 		basePose.x = location_pose.pose.pose.position.x;
@@ -51,10 +56,4 @@ void CaptureData::getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& l
 		basePose.qw = 0.;
 	}
 
-    std::cout << "odom x: " << basePose.x << std::endl;
-
-    out << basePose.x << "   " << basePose.y << "   " << basePose.z << "   "
-    << basePose.qx << "   " << basePose.qy << "   " << basePose.qz << "   "
-    << basePose.qw
-    << std::endl;
 }
