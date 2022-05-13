@@ -673,10 +673,11 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 
 
 
-int main()
+int main(int argc, char **argv)
 {
 	Eigen::Matrix4d gHc;
     std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData";
 	handEye_calib(gHc, calibDataDir);
-	return 1;
+
+	return 0;
 }
