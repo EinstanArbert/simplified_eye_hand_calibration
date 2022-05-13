@@ -414,14 +414,14 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		else
 		{
 			cv::cornerSubPix(image, image_points_buff, cv::Size(3,3), cv::Size(-1, -1),
-				cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
+				cv::TermCriteria(2 + 1, 30, 0.1));
 			// 对粗提取的角点精细化
 			// cv::find4QuadCornerSubpix(image, image_points_buff, cv::Size(5, 5));
 			// 保存亚像素角点
 			image_points_seq.push_back(image_points_buff);
 
 			cv::Mat image_color;
-			cv::cvtColor(image, image_color, CV_GRAY2BGR);
+			cv::cvtColor(image, image_color, 8);
 			cv::drawChessboardCorners(image_color, board_size, image_points_buff, true);
 			std::stringstream namestream;
 			std::string name;

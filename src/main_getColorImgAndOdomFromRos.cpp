@@ -47,7 +47,8 @@ int main(int argc, char **argv){
         //手动点击左键在打开的图片窗口，然后按s键保存图片与odom位置到指定文件
         if(manualMode){
             cv::imshow("colorImage", colorImg);
-            key = cvWaitKey(2);
+            // key = cvWaitKey(2);
+            key = cv::waitKey(2);
             if(key != -1){
                 if((char)key == 's'){
                     captureData.saveOdomPose();

@@ -25,31 +25,31 @@ CATKIN_DEPENDS roscpp geometry_msgs cv_bridge sensor_msgs nav_msgs
 include_directories("/usr/include/eigen3")
 
 find_package(OpenCV REQUIRED)
-FIND_PACKAGE(realsense2 REQUIRED)
+# FIND_PACKAGE(realsense2 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS}
 include
 ${EIGEN3_INCLUDE_DIR}
 ${catkin_INCLUDE_DIRS}
-${realsense2_INCLUDE_DIRS}
+# ${realsense2_INCLUDE_DIRS}
 )
 
 
-add_executable(getRSColorImage
-src/captureRSCameraStream.cpp
-src/captureRSCameraStream.hpp
-src/main_getRSColorImgAndOdom.cpp
-)
-target_include_directories(getRSColorImage PRIVATE
-    ${OpenCV_INCLUDE_DIRS}
-    ${realsense2_INCLUDE_DIRS}
-)
-target_link_libraries(getRSColorImage PRIVATE
-    ${OpenCV_LIBS}
-    ${realsense2_LIBRARY}
-    ${catkin_LIBRARIES}
-)
+# add_executable(getRSColorImage
+# src/captureRSCameraStream.cpp
+# src/captureRSCameraStream.hpp
+# src/main_getRSColorImgAndOdom.cpp
+# )
+# target_include_directories(getRSColorImage PRIVATE
+#     ${OpenCV_INCLUDE_DIRS}
+#     ${realsense2_INCLUDE_DIRS}
+# )
+# target_link_libraries(getRSColorImage PRIVATE
+#     ${OpenCV_LIBS}
+#     ${realsense2_LIBRARY}
+#     ${catkin_LIBRARIES}
+# )
 
 
 add_executable(getColorImageAndOdomFromRos
