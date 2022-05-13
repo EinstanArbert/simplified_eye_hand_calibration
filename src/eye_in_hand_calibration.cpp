@@ -632,8 +632,8 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	sync_results.erase(sync_results.begin());
 	cSolver::calib_result res;
 	cSolve.calib(sync_results, 4, res);
-    ofs << "-------CSM Calibration Results-------" << '\n' << "Camera-odom x: " << res.l[0] << '\n'
-            << "Camera-odom y: " << res.l[1] << '\n' << "Camera-odom yaw: " << res.l[2] << std::endl;
+    ofs << "-------CSM Calibration Results-------" << '\n' << "Camera to odom x: " << res.l[0] << '\n'
+            << "Camera to odom y: " << res.l[1] << '\n' << "Camera to odom yaw(degree): " << res.l[2] * 180. / 3.1415926 << std::endl;
 
 
 	Eigen::AngleAxisd v;
@@ -676,6 +676,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 int main()
 {
 	Eigen::Matrix4d gHc;
-	handEye_calib(gHc, "./data");
+    std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData";
+	handEye_calib(gHc, calibDataDir);
 	return 1;
 }

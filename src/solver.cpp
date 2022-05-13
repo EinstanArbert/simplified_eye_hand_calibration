@@ -19,8 +19,8 @@ void cSolver::calib(std::vector<sync_data> &calib_data, int outliers_iterations,
     }
     else
     {
-      std::cout << '\n' << "-------CSM Calibration Results-------" << '\n' << "Camera-odom x: " << res.l[0] << '\n'
-                << "Camera-odom y: " << res.l[1] << '\n' << "Camera-odom yaw: " << res.l[2] << std::endl;
+      std::cout << '\n' << "-------CSM Calibration Results-------" << '\n' << "Camera to odom x: " << res.l[0] << '\n'
+                << "Camera to odom y: " << res.l[1] << '\n' << "Camera to odom yaw(degree): " << res.l[2] * 180. / 3.1415926 << std::endl;
     }
 
     // Compute residuals
