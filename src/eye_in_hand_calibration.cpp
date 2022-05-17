@@ -22,7 +22,7 @@
 
 #define PI 3.1415926
 
-int num_of_all_images = 41;
+int num_of_all_images = 50;
 // 行列方向内角点数量
 cv::Size board_size = cv::Size(8, 6);
 // 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) m
@@ -376,7 +376,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		else
 		{
 			std::cout << "can not find " << image_path << std::endl;
-			exit(-1);
+			// exit(-1);
 		}
 	}
 	// 更新实际图片数量

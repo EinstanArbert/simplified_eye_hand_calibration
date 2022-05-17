@@ -311,7 +311,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 		else
 		{
 			std::cout << "can not find " << image_path << std::endl;
-			exit(-1);
+			// exit(-1);
 		}
 	}
 	// 更新实际图片数量
