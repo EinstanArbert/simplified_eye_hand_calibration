@@ -21,7 +21,7 @@ int main(int argc, char **argv){
     std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData/";
     // std::ofstream out(calibDataDir + "pose.txt");
 
-    ros::init(argc, argv, "calibCameraToOdom");
+    ros::init(argc, argv, "getColorImgAndOdomFromRos");
     ros::NodeHandle n("~");
     bool manualMode;
     n.param("manualMode", manualMode, false);
@@ -32,7 +32,8 @@ int main(int argc, char **argv){
     int key;
 
     ros::Subscriber color_sub = n.subscribe("/camera/rgb/image_raw", 1, &CaptureData::getImageColor_callback, &captureData);
-    ros::Subscriber odom_sub = n.subscribe("/odom", 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
+    // ros::Subscriber odom_sub = n.subscribe("/odom", 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
+    ros::Subscriber odom_sub = n.subscribe("/location", 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
     ros::Rate loop_rate(1);
     ros::Rate loop_rate2(0.5);
     while(ros::ok()){

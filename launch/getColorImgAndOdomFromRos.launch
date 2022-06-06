@@ -5,7 +5,7 @@
     </include>
 
     <node pkg="simplified_eye_hand_calibration" type="getColorImageAndOdomFromRos" name="getColorImageAndOdomFromRos" output="screen">
-        <param name="manualMode" value="false"/>
+        <param name="manualMode" value="true"/>
     </node>
 
 

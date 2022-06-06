@@ -38,6 +38,9 @@ class CaptureData{
             // 获取agv在odom坐标系下的位姿
             void getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& location_pose_ptr);
 
+            // 通过定位获取agv在map坐标系下的位姿
+            void getBasePoseByLocation_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr);
+
             void saveOdomPose();
 
             cv::Mat colorImg;

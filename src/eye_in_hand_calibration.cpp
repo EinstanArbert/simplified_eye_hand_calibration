@@ -22,13 +22,6 @@
 
 #define PI 3.1415926
 
-int num_of_all_images = 50;
-// 行列方向内角点数量
-cv::Size board_size = cv::Size(8, 6);
-// 标定板棋盘格实际尺寸(单位要与pose.txt中机器人位置的单位一致) m
-cv::Size2f square_size = cv::Size2f(0.0244, 0.0244);
-
-cSolver cSolve;
 Eigen::Matrix3d skew(Eigen::Vector3d V);
 Eigen::Matrix4d quat2rot(Eigen::Vector3d q);
 Eigen::Vector3d rot2quat(Eigen::MatrixXd R);
@@ -37,7 +30,7 @@ Eigen::Matrix4d handEye(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Ei
 	std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > cHw);
 Eigen::Matrix4d handEye1(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > bHg,
 	std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Eigen::Matrix4d> > cHw);
-int handEye_calib(Eigen::Matrix4d &gHc, std::string path );
+int handEye_calib(int num_of_all_images, cv::Size board_size, cv::Size2f square_size, Eigen::Matrix4d &gHc, std::string path);
 Eigen::Affine3d getAsAffine(double x, double y, double yaw );
 
 
@@ -358,7 +351,7 @@ void getRTFromRotationMatrix(const Eigen::Matrix4d& R, cv::Mat& eulerAngles, cv:
 }
 
 
-int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
+int handEye_calib(int num_of_all_images, cv::Size board_size, cv::Size2f square_size, Eigen::Matrix4d &gHc, std::string path)
 {
 	std::ofstream ofs(path + "/output.txt");
 	std::vector<cv::Mat> images;
@@ -628,7 +621,7 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 	}
 
 
-
+	cSolver cSolve;
 	sync_results.erase(sync_results.begin());
 	cSolver::calib_result res;
 	cSolve.calib(sync_results, 4, res);
@@ -675,9 +668,26 @@ int handEye_calib(Eigen::Matrix4d &gHc, std::string path)
 
 int main(int argc, char **argv)
 {
+	int num_of_all_images;
+	cv::Size board_size;
+	cv::Size2f square_size;
+
+	std::string eyeInHandCalibConfigDir = std::string(getenv("HOME")) + "/.config/od_ros/config/eyeInHandCalib.yaml";
+	cv::FileStorage eyeInHandCalibConfig(eyeInHandCalibConfigDir, cv::FileStorage::READ);
+	if(!eyeInHandCalibConfig.isOpened()){
+		std::cout << "Open eyeInHandCalib.yaml file failed. Exit.";
+		exit(-1);
+	}
+	num_of_all_images = eyeInHandCalibConfig["num_of_all_images"];
+	board_size.width = eyeInHandCalibConfig["board_size.width"];
+	board_size.height = eyeInHandCalibConfig["board_size.height"];
+	square_size.width = eyeInHandCalibConfig["square_size.width"];
+	square_size.height = eyeInHandCalibConfig["square_size.height"];
+
 	Eigen::Matrix4d gHc;
     std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData";
-	handEye_calib(gHc, calibDataDir);
+
+	handEye_calib(num_of_all_images, board_size, square_size, gHc, calibDataDir);
 
 	return 0;
 }
