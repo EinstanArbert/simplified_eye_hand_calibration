@@ -24,16 +24,19 @@ int main(int argc, char **argv){
     ros::init(argc, argv, "getColorImgAndOdomFromRos");
     ros::NodeHandle n("~");
     bool manualMode;
+    std::string colorImageRosTopicName, locationRosTopicName;
     n.param("manualMode", manualMode, false);
+    n.param("colorImageRosTopicName", colorImageRosTopicName, std::string("/camera/rgb/image_raw"));
+	n.param("locationRosTopicName", locationRosTopicName, std::string("/pose_fuse"));
 	CaptureData captureData;
 	cv::Mat colorImg;
 
     int imgID = 0;
     int key;
 
-    ros::Subscriber color_sub = n.subscribe("/camera/rgb/image_raw", 1, &CaptureData::getImageColor_callback, &captureData);
+    ros::Subscriber color_sub = n.subscribe(colorImageRosTopicName, 1, &CaptureData::getImageColor_callback, &captureData);
     // ros::Subscriber odom_sub = n.subscribe("/odom", 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
-    ros::Subscriber odom_sub = n.subscribe("/location", 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
+    ros::Subscriber odom_sub = n.subscribe(locationRosTopicName, 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
     ros::Rate loop_rate(1);
     ros::Rate loop_rate2(0.5);
     while(ros::ok()){

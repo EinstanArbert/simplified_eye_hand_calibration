@@ -5,7 +5,9 @@
     </include>
 
     <node pkg="simplified_eye_hand_calibration" type="getColorImageAndOdomFromRos" name="getColorImageAndOdomFromRos" output="screen">
-        <param name="manualMode" value="true"/>
+        <param name="manualMode" value="false"/>
+        <param name="colorImageRosTopicName" value="/camera/rgb/image_raw"/>
+        <param name="locationRosTopicName" value="/pose_fuse"/>
     </node>
 
 
