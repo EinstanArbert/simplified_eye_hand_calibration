@@ -4,8 +4,9 @@ project(simplified_eye_hand_calibration)
 
 add_compile_options(-std=c++11)
 
-set(CMAKE_BUILD_TYPE "Debug")
-
+# set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
+set (CMAKE_CXX_FLAGS "--std=c++11 -O2 ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
     roscpp
