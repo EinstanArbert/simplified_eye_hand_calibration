@@ -223,7 +223,9 @@ Eigen::Matrix4d handEye(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<Ei
 	Eigen::Vector3d Tcg = A.colPivHouseholderQr().solve(B);
 
 	// incorporate translation with rotation
-	Eigen::Matrix4d gHc = transl(Tcg) * Rcg;
+	Eigen::Matrix4d gHc = Rcg;
+	gHc.topRightCorner(3, 1) << Tcg;
+	// Eigen::Matrix4d gHc = transl(Tcg) * Rcg;
 	return gHc;
 }
 
@@ -287,12 +289,16 @@ Eigen::Matrix4d handEye1(std::vector<Eigen::Matrix4d, Eigen::aligned_allocator<E
 		k = k + 1;
 		// left-hand side
 		A.block(3 * k - 3, 0, 3, 3) << Hgij.topLeftCorner(3, 3) - Eigen::MatrixXd::Identity(3, 3);
+		// right-hand side
 		B.block(3 * k - 3, 0, 3, 1) << Rcg.topLeftCorner(3, 3)*Hcij.block(0, 3, 3, 1) - Hgij.block(0, 3, 3, 1);
-		B.block(3 * k - 3, 0, 3, 1) << Rcg.topLeftCorner(3, 3)*Hcij.block(0, 3, 3, 1) - Hgij.block(0, 3, 3, 1);
+		// B.block(3 * k - 3, 0, 3, 1) << Rcg.topLeftCorner(3, 3)*Hcij.block(0, 3, 3, 1) - Hgij.block(0, 3, 3, 1);
 	}
 	Eigen::Vector3d Tcg = A.colPivHouseholderQr().solve(B);
+
 	// incorporate translation with rotation
-	Eigen::Matrix4d gHc = transl(Tcg) * Rcg;
+	Eigen::Matrix4d gHc = Rcg;
+	gHc.topRightCorner(3, 1) << Tcg;
+	// Eigen::Matrix4d gHc = transl(Tcg) * Rcg;
 	return gHc;
 }
 

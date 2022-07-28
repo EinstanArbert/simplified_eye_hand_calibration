@@ -1,6 +1,6 @@
 %YAML:1.0
 
-num_of_all_images: 50 ##大于或者等于该数量的图片序号不被处理
+num_of_all_images: 50 ##图片总数量
 board_size.width: 8 ##标定板行方向的内角点数
 board_size.height: 6 ##标定板列方向的内角点数
 square_size.width: 0.024 ##标定板棋盘格实际尺寸行方向的尺寸(单位要与pose.txt中机器人位置的单位一致) m

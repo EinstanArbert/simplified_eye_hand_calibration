@@ -1,13 +1,15 @@
 <launch>
-    <!-- <include file="$(find simplified_eye_hand_calibration)/rs_camera.launch"> -->
-    <include file="$(find simplified_eye_hand_calibration)/launch/astrapro.launch">
-    <!-- <include file="$(find simplified_eye_hand_calibration)/percipioCamera_openni2.launch"> -->
+    <include file="$(find simplified_eye_hand_calibration)/launch/rs_camera.launch">
+    <!-- <include file="$(find simplified_eye_hand_calibration)/launch/astrapro.launch"> -->
+    <!-- <include file="$(find simplified_eye_hand_calibration)/launch/percipioCamera_openni2.launch"> -->
     </include>
 
     <node pkg="simplified_eye_hand_calibration" type="getColorImageAndOdomFromRos" name="getColorImageAndOdomFromRos" output="screen">
         <param name="manualMode" value="false"/>
-        <param name="colorImageRosTopicName" value="/camera/rgb/image_raw"/>
+        <!-- <param name="colorImageRosTopicName" value="/camera/rgb/image_raw"/> -->
+        <param name="colorImageRosTopicName" value="/camera/color/image_raw"/>
         <param name="locationRosTopicName" value="/pose_fuse"/>
+        <param name="odomRosTopicName" value="/odom"/>
     </node>
 
 

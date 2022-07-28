@@ -11,11 +11,25 @@
 
 #include <thread>
 #include "getColorImgAndOdomFromRos.hpp"
+#include <termios.h>
 
 using namespace cv;
 using namespace std;
 
+// function getch is from
+// http://answers.ros.org/question/63491/keyboard-key-pressed/
+int getch() {
+    static struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt); // save old settings
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON);               // disable buffering
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // apply new settings
 
+    int c = getchar(); // read character (non-blocking)
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // restore old settings
+    return c;
+}
 
 int main(int argc, char **argv){
     std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData/";
@@ -24,10 +38,11 @@ int main(int argc, char **argv){
     ros::init(argc, argv, "getColorImgAndOdomFromRos");
     ros::NodeHandle n("~");
     bool manualMode;
-    std::string colorImageRosTopicName, locationRosTopicName;
+    std::string colorImageRosTopicName, locationRosTopicName, odomRosTopicName;
     n.param("manualMode", manualMode, false);
-    n.param("colorImageRosTopicName", colorImageRosTopicName, std::string("/camera/rgb/image_raw"));
+    n.param("colorImageRosTopicName", colorImageRosTopicName, std::string("/camera/color/image_raw"));
 	n.param("locationRosTopicName", locationRosTopicName, std::string("/pose_fuse"));
+	n.param("odomRosTopicName", odomRosTopicName, std::string("/odom"));
 	CaptureData captureData;
 	cv::Mat colorImg;
 
@@ -35,8 +50,8 @@ int main(int argc, char **argv){
     int key;
 
     ros::Subscriber color_sub = n.subscribe(colorImageRosTopicName, 1, &CaptureData::getImageColor_callback, &captureData);
-    // ros::Subscriber odom_sub = n.subscribe("/odom", 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
-    ros::Subscriber odom_sub = n.subscribe(locationRosTopicName, 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
+    ros::Subscriber odom_sub = n.subscribe(odomRosTopicName, 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
+    // ros::Subscriber odom_sub = n.subscribe(locationRosTopicName, 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
     ros::Rate loop_rate(1);
     ros::Rate loop_rate2(0.5);
     while(ros::ok()){
@@ -52,9 +67,10 @@ int main(int argc, char **argv){
         if(manualMode){
             cv::imshow("colorImage", colorImg);
             // key = cvWaitKey(2);
-            key = cv::waitKey(2);
+            // key = cv::waitKey(2);
+            key = getch();
             if(key != -1){
-                if((char)key == 's'){
+                if(key == 's'){
                     captureData.saveOdomPose();
                     std::stringstream ss1;
                     ss1 << calibDataDir << imgID << ".png";
