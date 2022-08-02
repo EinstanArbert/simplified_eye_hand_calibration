@@ -9,7 +9,6 @@
  *
  */
 
-#include <thread>
 #include "getColorImgAndOdomFromRos.hpp"
 #include <termios.h>
 
@@ -65,30 +64,30 @@ int main(int argc, char **argv){
 
         //手动点击左键在打开的图片窗口，然后按s键保存图片与odom位置到指定文件
         if(manualMode){
-            cv::imshow("colorImage", colorImg);
+            // cv::imshow("colorImage", colorImg);
             // key = cvWaitKey(2);
             // key = cv::waitKey(2);
             key = getch();
-            if(key != -1){
+            // if(key != -1){
                 if(key == 's'){
-                    captureData.saveOdomPose();
                     std::stringstream ss1;
                     ss1 << calibDataDir << imgID << ".png";
                     cv::imwrite(ss1.str().c_str(), colorImg);
                     imgID += 1;
                     ros::spinOnce();
+                    captureData.saveOdomPose();
                     loop_rate.sleep();
                 }
-            }
+            // }
         }
         else{
             //自动按loop_rate的频率保存图片与odom的值到指定文件
-            captureData.saveOdomPose();
             std::stringstream ss1;
             ss1 << calibDataDir << imgID << ".png";
             cv::imwrite(ss1.str().c_str(), colorImg);
             imgID += 1;
             ros::spinOnce();
+            captureData.saveOdomPose();
             loop_rate.sleep();
         }
     }
