@@ -8,7 +8,7 @@
         <param name="manualMode" value="true"/>
         <!-- <param name="colorImageRosTopicName" value="/camera/rgb/image_raw"/> -->
         <param name="colorImageRosTopicName" value="/camera/color/image_raw"/>
-        <param name="locationRosTopicName" value="/pose_fuse"/>
+        <param name="locationRosTopicName" value="/ndt_pose"/>
         <param name="odomRosTopicName" value="/odom"/>
     </node>
 

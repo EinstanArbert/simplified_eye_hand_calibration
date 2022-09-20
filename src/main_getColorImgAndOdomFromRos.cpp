@@ -49,8 +49,8 @@ int main(int argc, char **argv){
     int key;
 
     ros::Subscriber color_sub = n.subscribe(colorImageRosTopicName, 1, &CaptureData::getImageColor_callback, &captureData);
-    ros::Subscriber odom_sub = n.subscribe(odomRosTopicName, 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
-    // ros::Subscriber odom_sub = n.subscribe(locationRosTopicName, 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
+    // ros::Subscriber odom_sub = n.subscribe(odomRosTopicName, 1, &CaptureData::getBasePoseInOdom_callback, &captureData);
+    ros::Subscriber odom_sub = n.subscribe(locationRosTopicName, 1, &CaptureData::getBasePoseByLocation_callback, &captureData);
     ros::Rate loop_rate(1);
     ros::Rate loop_rate2(0.5);
     while(ros::ok()){
