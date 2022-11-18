@@ -17,7 +17,7 @@
 #include <eigen3/Eigen/Eigen>
 
 #include <opencv2/core/eigen.hpp>
-
+#include "ros/ros.h"
 #include "solver.h"
 
 #define PI 3.1415926
@@ -674,21 +674,16 @@ int handEye_calib(int num_of_all_images, cv::Size board_size, cv::Size2f square_
 
 int main(int argc, char **argv)
 {
+	ros::init(argc, argv, "eye_in_hand_calibration");
+    ros::NodeHandle n("~");
 	int num_of_all_images;
 	cv::Size board_size;
 	cv::Size2f square_size;
-
-	std::string eyeInHandCalibConfigDir = std::string(getenv("HOME")) + "/.config/od_ros/config/eyeInHandCalib.yaml";
-	cv::FileStorage eyeInHandCalibConfig(eyeInHandCalibConfigDir, cv::FileStorage::READ);
-	if(!eyeInHandCalibConfig.isOpened()){
-		std::cout << "Open eyeInHandCalib.yaml file failed. Exit.";
-		exit(-1);
-	}
-	num_of_all_images = eyeInHandCalibConfig["num_of_all_images"];
-	board_size.width = eyeInHandCalibConfig["board_size.width"];
-	board_size.height = eyeInHandCalibConfig["board_size.height"];
-	square_size.width = eyeInHandCalibConfig["square_size.width"];
-	square_size.height = eyeInHandCalibConfig["square_size.height"];
+    n.param("num_of_all_images", num_of_all_images, 30);
+    n.param("board_size_width", board_size.width, 8);
+    n.param("board_size_height", board_size.height, 6);
+    n.param("square_size_width", square_size.width, 0.024f);
+    n.param("square_size_height", square_size.height, 0.024f);
 
 	Eigen::Matrix4d gHc;
     std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData";

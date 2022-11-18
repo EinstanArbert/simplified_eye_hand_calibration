@@ -1,8 +1,6 @@
 #include "getColorImgAndOdomFromRos.hpp"
 
 CaptureData::CaptureData():out(std::string(getenv("HOME")) + "/.config/od_ros/calibData/pose.txt"){
-    // std::string calibDataDir = std::string(getenv("HOME")) + "/.config/od_ros/calibData/";
-    // out = std::ofstream(calibDataDir + "pose.txt");
 }
 
 void CaptureData::getImageColor_callback(const sensor_msgs::ImageConstPtr& msgRGB){
@@ -24,6 +22,7 @@ void CaptureData::getImageColor_callback(const sensor_msgs::ImageConstPtr& msgRG
 }
 
 void CaptureData::saveOdomPose(){
+	//!should add mutex lock
     out << basePose.x << "   " << basePose.y << "   " << basePose.z << "   "
     << basePose.qx << "   " << basePose.qy << "   " << basePose.qz << "   "
     << basePose.qw
@@ -32,8 +31,6 @@ void CaptureData::saveOdomPose(){
 
 
 void CaptureData::getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& location_pose_ptr){
-    // Pose basePose;
-
 	nav_msgs::Odometry location_pose = *location_pose_ptr;
 	if(!isnan(location_pose.pose.pose.position.x) && !isnan(location_pose.pose.pose.position.y))
 	{
@@ -60,8 +57,6 @@ void CaptureData::getBasePoseInOdom_callback(const nav_msgs::OdometryConstPtr& l
 
 
 void CaptureData::getBasePoseByLocation_callback(const geometry_msgs::PoseStampedConstPtr& location_pose_ptr){
-	// Pose basePose;
-
 	geometry_msgs::PoseStamped location_pose = *location_pose_ptr;
 	if(!isnan(location_pose.pose.position.x) && !isnan(location_pose.pose.position.y))
 	{

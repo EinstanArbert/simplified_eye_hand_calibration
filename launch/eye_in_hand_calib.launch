@@ -1,5 +1,10 @@
 <launch>
     <node pkg="simplified_eye_hand_calibration" type="eye_in_hand_calibration" name="eye_in_hand_calibration" output="screen">
+        <param name="num_of_all_images" value="50"/>
+        <param name="board_size_width" value="8"/>
+        <param name="board_size_height" value="6"/>
+        <param name="square_size_width" value="0.024"/>
+        <param name="square_size_height" value="0.024"/>
     </node>
 
 

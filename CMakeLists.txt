@@ -68,7 +68,7 @@ target_link_libraries(getColorImageAndOdomFromRos PRIVATE
 
 
 add_executable(eye_in_hand_calibration src/eye_in_hand_calibration.cpp src/solver.cpp)
-target_link_libraries(eye_in_hand_calibration ${OpenCV_LIBRARIES})
+target_link_libraries(eye_in_hand_calibration ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 add_executable(eye_to_hand_calibration src/eye_to_hand_calibration.cpp)
 target_link_libraries(eye_to_hand_calibration ${OpenCV_LIBRARIES})
